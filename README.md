@@ -50,11 +50,11 @@ INSERT INTO currencies(iso, title) VALUES
 
 * Переходим в директорию проекта и запускаем cli-скрипт получения курсов для добавленных валют:
 
-* Создаем конфигурацию для хоста (путь до index.php - currency_parser/currency_parser/public/)
-
 ```
 $ php currency_parser/public/index.php Schedule
 ```
+
+* Создаем конфигурацию для хоста (путь до index.php - currency_parser/currency_parser/public/)
 
 ## Примеры запросов к API:
 
@@ -93,3 +93,15 @@ $ curl -X PUT -H "Content-type: application/json" $API_HOST/api/v1/currencies/1 
 ```
 $ curl -X DELETE $API_HOST/api/v1/currencies/1
 ```
+
+## Примечания по коду:
+
+* Используемый стандарт кодирования: Zend
+* API сделано в виде отдельного модуля (api)
+* Бизнес логика вынесена в слой application services и моделей
+* API взаимодействует с сервисами через DTO
+* Реализован маппинг request->dto, dto->model, model->dto, dto->response через аннотации
+* Парсеры курсов можно подменять, для этого нужно реализовать класс, использующий интерфейс Api_CurrencyParser_Interface
+* Умолчательный парсер используется данные с Yahoo.finance
+* Кэшировать результаты работы API-action рекомендуется через HTTP-заголовки кэширования (на стороне того же nginx),
+для этого реализованы методы **setCacheExpires** и **setCacheControl** у базового API-контроллера
