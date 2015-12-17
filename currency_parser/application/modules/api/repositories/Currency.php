@@ -26,7 +26,7 @@ class Api_Repository_Currency implements Api_Repository_Interface
             return null;
         }
 
-        return $this->_createModel(reset($rows));
+        return $this->_createModel($rows[0]->toArray());
     }
 
     /**
@@ -114,12 +114,12 @@ class Api_Repository_Currency implements Api_Repository_Interface
         ];
 
         if ($model->getId()) {
-            $data['last_updated_at'] = $model->getLastUpdatedAt()->format(DATE_W3C);
+            $data['last_updated_at'] = $model->getLastUpdatedAt() ? $model->getLastUpdatedAt()->format(DATE_W3C) : null;
             $criteria = ['id = ?' => (int) $model->getId()];
             $this->_gateway->update($data, $criteria);
         } else {
             $this->_gateway->insert($data);
-            $model->setId($this->_gateway->lastInsertValue);
+            $model->setId($this->_gateway->getAdapter()->lastInsertId());
         }
 
         return $model;
@@ -152,7 +152,7 @@ class Api_Repository_Currency implements Api_Repository_Interface
     private function _createModel(array $data = [])
     {
         if (empty($data['id'])) {
-            throw (new Api_Exception_NoArgument())->setField('id');
+            throw (new Api_Exception_NoArgument())->setName('id');
         }
 
         $currency = new Api_Model_Currency(

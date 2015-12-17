@@ -95,8 +95,10 @@ class Api_CurrencyController extends Api_Controller_Base
     public function postAction(Api_Dto_Currency $dto)
     {
         $currency = $this->_service->create($dto);
+        $meta = $this->_createMeta(1);
+        $meta->addParam('rate', $currency->getRate());
 
         return $this
-            ->_createResult([$currency], $this->_createMeta(1))->setLocation($this->_getUrl() . $currency->getId());
+            ->_createResult([['id' => $currency->getId()]], $meta)->setLocation($this->_getUrl() . $currency->getId());
     }
 }

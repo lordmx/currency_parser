@@ -21,6 +21,10 @@ class Api_Manager_Dto
             throw (new Api_Exception_BadMethodCall())->setMethod($this->getHttpMethodFromAction($action));
         }
 
+        if (!$arguments) {
+            return null;
+        }
+
         $className = $arguments[0]->getClass()->getName();
 
         if (!$className) {

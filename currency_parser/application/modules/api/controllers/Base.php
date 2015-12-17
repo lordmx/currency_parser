@@ -34,6 +34,8 @@ class Api_Controller_Base extends Zend_Controller_Action
             new Api_Annotation_Reader_Simple(),
             new Api_Annotation_Injector_Simple()
         );
+
+        $this->_helper->viewRenderer->setNoRender(true);
     }
 
     /**
@@ -44,35 +46,41 @@ class Api_Controller_Base extends Zend_Controller_Action
     public function dispatch($action)
     {
         try {
-            $dto = $this->_dtoManager->createFromMethod($this, $action);
-        } catch (Api_Exception_BadMethodCall $e) {
-            throw new Api_Exception_BadMethodCall();
-        }
+            $action = $this->_getRestAction();
 
-        try {
+            if (!$action) {
+                throw new Api_Exception_BadMethodCall();
+            }
+
+            $this->_request->setActionName($action);
+            $dto = $this->_dtoManager->createFromMethod($this, $action . 'Action');
+
             if (!$dto) {
-                parent::dispatch($action);
+                parent::dispatch($action . 'Action');
+                $result = $this->_getDispatchedResult();
             } else {
-                $this->_annotationManager->populateDtoFromArray($dto, $this->getAllParams());
-                $result = call_user_func_array([$this, $action], [$dto]);
+                $this->_annotationManager->populateDtoFromArray($dto, $this->_getParams());
+                $result = call_user_func_array([$this, $action . 'Action'], [$dto]);
             }
         } catch (Api_Exception_BadMethodCall $e) {
             $result = $this->_createError('not found', Api_Controller_Response_Result::NOT_FOUND);
         } catch (Api_Exception_NoArgument $e) {
-            $result = $this->_createError('bad request', Api_Controller_Response_Result::BAD_REQUEST);
+            $result = $this->_createError($e->getMessage(), Api_Controller_Response_Result::BAD_REQUEST);
         } catch (Exception $e) {
             $result = $this->_createError('internal error', Api_Controller_Response_Result::INTERNAL);
         }
 
         $this->_response->setHttpResponseCode($result->getCode());
 
-        if ($result->getLocation()) {
-            $this->_response->setHeader('Location', $result->getLocation());
+        if ($result->getCode() != Api_Controller_Response_Result::NO_CONTENT) {
+            if ($result->getLocation()) {
+                $this->_response->setHeader('Location', $result->getLocation());
+            }
+
+            $raw = $this->_getRawResult($result);
+
+            $this->_helper->json($raw);
         }
-
-        $raw = $this->_getRawResult($result);
-
-        $this->_helper->json($raw);
     }
 
     /**
@@ -81,6 +89,45 @@ class Api_Controller_Base extends Zend_Controller_Action
     public function getLimit()
     {
         return $this->_request->getLimit() ?: $this->_defaultLimit;
+    }
+
+    /**
+     * @return array
+     */
+    protected function _getParams()
+    {
+        $params = $this->_request->getParams();
+        $raw = file_get_contents('php://input');
+
+        if ($raw) {
+            $params = array_merge($params, json_decode($raw, true));
+        }
+
+        return $params;
+    }
+
+    /**
+     * @return string
+     */
+    protected function _getRestAction()
+    {
+        $id = $this->_request->getParam('id', null);
+
+        if ($this->_request->isGet() && !is_null($id)) {
+            return 'get';
+        } elseif ($this->_request->isPost()) {
+            return 'post';
+        } elseif ($this->_request->isPut()) {
+            return 'put';
+        } elseif ($this->_request->isDelete()) {
+            return 'delete';
+        }
+
+        if ($this->_request->isGet()) {
+            return 'index';
+        }
+
+        return null;
     }
 
     /**
@@ -111,8 +158,12 @@ class Api_Controller_Base extends Zend_Controller_Action
             $entities = [];
 
             foreach ($result->getEntities() as $entity) {
-                $dto = $this->_getDto($entity);
-                $entities[] = $this->_annotationManager->populateArrayFromDto($dto);
+                if (is_array($entity)) {
+                    $entities[] = $this->_getDecoratedEntity($entity);
+                } else {
+                    $dto = $this->_getDto($entity);
+                    $entities[] = $this->_annotationManager->populateArrayFromDto($dto);
+                }
             }
 
             $raw[$this->_resourceName] = $entities;
@@ -140,12 +191,25 @@ class Api_Controller_Base extends Zend_Controller_Action
     {
         if ($entity instanceof Api_Model_Base) {
             $dto = $this->_dtoManager->createFromMethod($this, $this->_request->getActionName() . 'Action');
+
+            if (!$dto) {
+                $dto = $entity->getBaseDto();
+            }
+
             $this->_annotationManager->populateDtoFromModel($dto, $this->_getDecoratedEntity($entity));
         } else {
             $dto = $this->_getDecoratedEntity($entity);
         }
 
         return $dto;
+    }
+
+    /**
+     * @return Api_Controller_Response_Result
+     */
+    protected function _getDispatchedResult()
+    {
+        return Zend_Registry::get('api_result');
     }
 
     /**
@@ -159,7 +223,10 @@ class Api_Controller_Base extends Zend_Controller_Action
         Api_Controller_Response_Meta $meta = null,
         $code = Api_Controller_Response_Result::OK
     ) {
-        return new Api_Controller_Response_Result($entities, $meta, $code);
+        $result = new Api_Controller_Response_Result($entities, $meta, $code);
+        Zend_Registry::set('api_result', $result);
+
+        return $result;
     }
 
     /**
@@ -195,6 +262,6 @@ class Api_Controller_Base extends Zend_Controller_Action
      */
     protected function _getUrl()
     {
-        return '/api/' . $this->_request->getVersion() . '/' . $this->_resounseName . '/';
+        return '/api/' . $this->_request->getVersion() . '/' . $this->_resourceName . '/';
     }
 }

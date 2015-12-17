@@ -1,6 +1,6 @@
 <?php
 
-class Api_Exception_AlreadyExists extends Api_Exception_Base
+class Api_Exception_AlreadyExists extends Api_Exception_NoArgument
 {
     /**
      * @var int
@@ -46,6 +46,7 @@ class Api_Exception_AlreadyExists extends Api_Exception_Base
     public function setIso($iso)
     {
         $this->_iso = $iso;
+        $this->message = 'Currency with iso ' . $iso . ' already exists';
 
         return $this;
     }

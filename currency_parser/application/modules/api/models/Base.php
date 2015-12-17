@@ -3,6 +3,20 @@
 class Api_Model_Base implements \ArrayAccess
 {
     /**
+     * @return object
+     */
+    public function getBaseDto()
+    {
+        $className = 'Api_Dto_' . substr(get_class($this), strlen('Api_Model_'));
+
+        if (!class_exists($className)) {
+            return null;
+        }
+
+        return new $className();
+    }
+
+    /**
      * @see \ArrayAccess::offsetGet
      */
     public function offsetGet($offset)

@@ -9,7 +9,8 @@ class Api_CurrencyParser_Yahoo implements Api_CurrencyParser_Interface
     public function getRate($targetIso, $sourceIso)
     {
         try {
-            $data = json_decode(file_get_contents($this->_getApiUrl($targetIso, $sourceIso)), true);
+            $url = $this->_getApiUrl($targetIso, $sourceIso);
+            $data = json_decode(file_get_contents($url), true);
         } catch (\Exception $e) {
             $data = null;
         }
@@ -32,7 +33,7 @@ class Api_CurrencyParser_Yahoo implements Api_CurrencyParser_Interface
             return null;
         }
 
-        $rate = reset($data['results']['rate']);
+        $rate = $data['results']['rate'];
 
         if (!isset($rate['Rate'])) {
             throw new Api_Exception_ParserError('Wrong APIs request: wrong structure, no rate');
@@ -50,7 +51,7 @@ class Api_CurrencyParser_Yahoo implements Api_CurrencyParser_Interface
     {
         return
             'https://query.yahooapis.com/v1/public/yql?q=select+*+from+yahoo.finance.xchange+where+pair+=+%22' .
-            strtolower($targetIso . $sourceIso) .
+            strtoupper($targetIso . $sourceIso) .
             '%22&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys';
     }
 }

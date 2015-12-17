@@ -23,9 +23,10 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
         $router->addRoute('currencies', $route);
 
         $targetRoute = new Zend_Controller_Router_Route(
-            ':version/currencies/:id/',
+            'api/:version/currencies/:id/',
             [
                 'controller' => 'currency',
+                'module'     => 'api',
             ],
             [
                 'version' => 'v[\d]+',

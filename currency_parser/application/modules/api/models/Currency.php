@@ -36,7 +36,7 @@ class Api_Model_Currency extends Api_Model_Base
     public function __construct($iso, $title = null, $rate = null)
     {
         if (!$iso) {
-            throw (new Api_Exception_NoArgument())->setField('iso');
+            throw (new Api_Exception_NoArgument())->setName('iso');
         }
 
         $this->_iso = $iso;
@@ -66,6 +66,14 @@ class Api_Model_Currency extends Api_Model_Base
         }
 
         return $currency;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getBaseDto()
+    {
+        return new Api_Dto_Currency();
     }
 
     /**

@@ -45,17 +45,17 @@ class Api_Service_Currency
     public function create(Api_Dto_Currency $dto)
     {
         if (!$dto->iso) {
-            throw (new Api_Exception_NoArgument())->setField('iso');
+            throw (new Api_Exception_NoArgument())->setName('iso');
         }
 
-        $model = $this->_repositiory->findByDto($dto);
+        $models = $this->_repository->findByDto($dto);
 
-        if ($model) {
-            throw (new Api_Exception_AlreadyExists())->setId($model->getId());
+        if ($models) {
+            throw (new Api_Exception_AlreadyExists())->setIso($dto->iso);
         }
 
         $currency = Api_Model_Currency::createFromDto($dto);
-        $this->_repository->save($currency);
+        $this->_repository->persist($currency);
 
         return $this->updateRate($currency);
     }
@@ -136,11 +136,8 @@ class Api_Service_Currency
             $currency->setRate(null);
         }
 
-        if (!$currency->getRate()) {
-            $this->updateRate($currency);
-        } else {
-            $this->_repository->persist($currency);
-        }
+        $this->_repository->persist($currency);
+        $this->updateRate($currency);
 
         return $currency;
     }

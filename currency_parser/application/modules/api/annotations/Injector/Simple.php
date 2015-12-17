@@ -64,6 +64,12 @@ class Api_Annotation_Injector_Simple implements Api_Annotation_Injector_Interfac
             $targetField = $annotation->getTargetField() ?: $propertyName;
         }
 
-        return [$targetField => $reflection->getValue($dto)];
+        $value = $reflection->getValue($dto);
+
+        if ($value instanceof \DateTime) {
+            $value = $value->format(DATE_W3C);
+        }
+
+        return [$targetField => $value];
     }
 }
