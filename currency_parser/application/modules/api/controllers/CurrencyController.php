@@ -27,6 +27,9 @@ class Api_CurrencyController extends Api_Controller_Base
     }
 
     /**
+     * GET /api/v1/currencies
+     * Get list of currencies
+     *
      * @param Api_Dto_Currency $dto
      * @return Api_Controller_Response_Result
      */
@@ -39,6 +42,9 @@ class Api_CurrencyController extends Api_Controller_Base
     }
 
     /**
+     * GET /api/v1/currencies/%id
+     * Get the currency data
+     *
      * @return Api_Controller_Response_Result
      * @throws Api_Exception_NotFound
      */
@@ -54,6 +60,9 @@ class Api_CurrencyController extends Api_Controller_Base
     }
 
     /**
+     * DELETE /api/v1/currencies/%id
+     * Delete the currency
+     *
      * @return Api_Controller_Response_Result
      * @throws Api_Exception_NotFound
      */
@@ -71,6 +80,9 @@ class Api_CurrencyController extends Api_Controller_Base
     }
 
     /**
+     * PUT /api/v1/currencies/%id
+     * Update currency data
+     *
      * @param Api_Dto_Currency $dto
      * @return Api_Controller_Response_Result
      * @throws Api_Exception_NotFound
@@ -89,6 +101,9 @@ class Api_CurrencyController extends Api_Controller_Base
     }
 
     /**
+     * POST /api/v1/currencies
+     * Create a new currency
+     *
      * @param Api_Dto_Currency $dto
      * @return Api_Controller_Response_Result
      */
