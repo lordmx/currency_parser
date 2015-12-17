@@ -56,6 +56,8 @@ $ php currency_parser/public/index.php Schedule
 
 * Создаем конфигурацию для хоста (путь до index.php - currency_parser/currency_parser/public/)
 
+* Вызов скрипта парсинга курсов следует добавить в crontab (с интервалом раз в 1 час)
+
 ## Примеры запросов к API:
 
 * Получить список из первых 10 валют:
