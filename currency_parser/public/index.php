@@ -22,22 +22,6 @@ error_reporting(E_ALL & ~E_DEPRECATED);
 require_once 'Zend/Loader/Autoloader.php';
 $loader = Zend_Loader_Autoloader::getInstance();
 
-$apiLoader = new Zend_Loader_Autoloader_Resource([
-    'namespace' => 'Api',
-    'basePath'  => APPLICATION_PATH . '/modules/api',
-]);
-
-$apiLoader
-    ->addResourceType('dto', 'dto', 'Dto')
-    ->addResourceType('annotation', 'annotations', 'Annotation')
-    ->addResourceType('controller', 'controllers', 'Controller')
-    ->addResourceType('parser', 'parsers', 'CurrencyParser')
-    ->addResourceType('exception', 'exceptions', 'Exception')
-    ->addResourceType('manager', 'managers', 'Manager')
-    ->addResourceType('model', 'models', 'Model')
-    ->addResourceType('service', 'services', 'Service')
-    ->addResourceType('repository', 'repositories', 'Repository');
-
 // Create application, bootstrap, and run
 $application = new Zend_Application(
     APPLICATION_ENV,

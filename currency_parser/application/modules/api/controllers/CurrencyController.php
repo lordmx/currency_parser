@@ -99,6 +99,7 @@ class Api_CurrencyController extends Api_Controller_Base
         $meta->addParam('rate', $currency->getRate());
 
         return $this
-            ->_createResult([['id' => $currency->getId()]], $meta)->setLocation($this->_getUrl() . $currency->getId());
+            ->_createResult([['id' => $currency->getId()]], $meta)
+                ->setLocation($this->_getUrl() . $currency->getId());
     }
 }

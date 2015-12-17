@@ -1,6 +1,6 @@
 <?php
 
-class Api_Controller_Schedule extends Zend_Controller_Action
+class Api_ScheduleController extends Zend_Controller_Action
 {
     /**
      * @var Api_Service_Currency
@@ -15,7 +15,10 @@ class Api_Controller_Schedule extends Zend_Controller_Action
         parent::init();
 
         $gateway = new Api_Model_TableGateway_Currency(['db' => Zend_Db_Table::getDefaultAdapter()]);
-        $this->_service = new Api_Service_Currency($gateway);
+        $repository = new Api_Repository_Currency($gateway);
+        $parser = new Api_CurrencyParser_Yahoo();
+
+        $this->_service = new Api_Service_Currency($repository, $parser);
     }
 
     public function indexAction()
@@ -25,5 +28,7 @@ class Api_Controller_Schedule extends Zend_Controller_Action
         foreach ($currencies as $currency) {
             $this->_service->updateRate($currency);
         }
+
+        exit;
     }
 }

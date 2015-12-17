@@ -137,7 +137,7 @@ class Api_Model_Currency extends Api_Model_Base
      */
     public function getRate()
     {
-        return round((float) $this->_rate, 2);
+        return round((float) $this->_rate, 8);
     }
 
     /**

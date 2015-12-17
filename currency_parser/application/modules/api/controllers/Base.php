@@ -92,6 +92,27 @@ class Api_Controller_Base extends Zend_Controller_Action
     }
 
     /**
+     * @param int $expires
+     */
+    protected function _setCacheExpires($expires)
+    {
+        $reference = strtotime(date('Y-m-d 00:00:00'));
+        $expires = F::calcExpireTime($expires, $reference);
+
+        $this->_response->setHeader('X-Accel-Expires', $expires);
+        $this->_response->setHeader('Last-Modified', date(DATE_RFC1123, time()));
+        $this->_response->setHeader('Expires', date(DATE_RFC1123, time() + $expires));
+    }
+
+    /**
+     * @param string $control
+     */
+    protected function _setCacheControl($control)
+    {
+        $this->_response->setHeader('Cache-Control', $control);
+    }
+
+    /**
      * @return array
      */
     protected function _getParams()
