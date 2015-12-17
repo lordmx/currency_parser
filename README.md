@@ -8,10 +8,28 @@
 $ git clone git@github.com:lordmx/currency_parser.git
 ```
 
-* Переходим в директорию проекта и выполняем:
+* Переходим в директорию проекта:
 
 ```
-$ composer install
+$ cd currency_parser
+```
+
+* Качаем бинарник composer:
+
+```
+$ curl -sS https://getcomposer.org/installer | php
+```
+
+* Получаем зависимые пакеты:
+
+```
+$ php composer.phar install
+```
+
+* Используем mysql-клиент для установки соединения с СУБД mysql:
+
+```
+$ mysql -uroot
 ```
 
 * Создаем новую БД:
@@ -20,11 +38,19 @@ $ composer install
 CREATE DATABASE currency_parser;
 ```
 
-* Создаяем в ней таблицу для валют:
+* Даем пользователю root права на нее:
+
+```
+GRANT ALL ON currency_parser.* TO 'root'@'%';
+```
+
+* Меняем текущую БД на новую:
 
 ```
 use currency_parser
 ```
+
+* И создаем в ней новую таблицу для валют:
 
 ```
 CREATE TABLE `currencies` (
